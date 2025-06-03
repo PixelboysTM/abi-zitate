@@ -37,11 +37,11 @@ COPY --from=builder /app/target/dx/abi-zitate/release/web /usr/local/app/
 # Set working directory and environment
 WORKDIR /usr/local/app
 ENV RUST_LOG=info
-ENV PORT=8080
+ENV PORT=3000
 ENV HOST=0.0.0.0
 ENV RUST_BACKTRACE=1
 
-EXPOSE 8080
+EXPOSE 3000
 
 # Run the server binary that was created by dx bundle
 CMD ["/usr/local/app/server"]
