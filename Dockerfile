@@ -25,19 +25,14 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ca
 RUN cargo binstall dioxus-cli --root /.cargo -y --force
 ENV PATH="/.cargo/bin:$PATH"
 
-# Build the web assets
-RUN dx build --release --features web
-
-# Build the server binary
-RUN cargo build --release --no-default-features --features server
+# Build the fullstack application
+RUN dx bundle --release
 
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates libssl3
 
-# Copy the server binary and static files
-COPY --from=builder /app/target/release/abi-zitate /usr/local/bin/server
-COPY --from=builder /app/target/dx/abi-zitate/release/web/ /usr/local/app/dist/
-COPY --from=builder /app/quotes.json /usr/local/app/
+# Copy the bundled application
+COPY --from=builder /app/target/release/web /usr/local/app/
 
 # Set working directory and environment
 WORKDIR /usr/local/app
@@ -48,4 +43,5 @@ ENV RUST_BACKTRACE=1
 
 EXPOSE 8080
 
-CMD ["/usr/local/bin/server"]
+# Run the server binary that was created by dx bundle
+CMD ["(usr/local/app/server"]
