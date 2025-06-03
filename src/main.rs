@@ -112,11 +112,13 @@ pub struct Quote {
     created: DateTime<Local>,
 }
 
-const FILE_PATH: &str = "./quotes.json";
+fn file_path() -> String {
+    std::env::var("QUOTE_FILE").unwrap()
+}
 
 #[server]
 async fn get_quotes() -> Result<Vec<Quote>, ServerFnError> {
-    let s = std::fs::read_to_string(FILE_PATH)
+    let s = std::fs::read_to_string(file_path())
         .map_err(|e| eprintln!("{e:?}"))
         .unwrap_or("".to_string());
     let quotes: Vec<Quote> = serde_json::from_str(&s)
@@ -139,7 +141,7 @@ async fn add_quote(quote: String, author: String) -> Result<bool, ServerFnError>
 
     info!("Adding");
 
-    let s = std::fs::read_to_string(FILE_PATH)
+    let s = std::fs::read_to_string(file_path())
         .map_err(|e| error!("{e:?}"))
         .ok();
     if let Some(s) = s {
@@ -151,7 +153,7 @@ async fn add_quote(quote: String, author: String) -> Result<bool, ServerFnError>
                 .ok();
 
             if let Some(s) = s {
-                let success = std::fs::write(FILE_PATH, s)
+                let success = std::fs::write(file_path(), s)
                     .map_err(|e| error!("{e:?}"))
                     .is_ok();
 
