@@ -25,9 +25,11 @@ RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/ca
 RUN cargo binstall dioxus-cli --root /.cargo -y --force
 ENV PATH="/.cargo/bin:$PATH"
 
-# Build the application
+# Build the web assets
 RUN dx build --release --features web
-RUN cargo build --release
+
+# Build the server binary
+RUN cargo build --release --no-default-features --features server
 
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates libssl3
@@ -42,6 +44,7 @@ WORKDIR /usr/local/app
 ENV RUST_LOG=info
 ENV PORT=8080
 ENV HOST=0.0.0.0
+ENV RUST_BACKTRACE=1
 
 EXPOSE 8080
 
