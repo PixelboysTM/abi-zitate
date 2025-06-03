@@ -6,10 +6,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     ca-certificates \
     wget \
-    gnupg \
-    && echo "deb http://deb.debian.org/debian bullseye-backports main contrib" > /etc/apt/sources.list.d/backports.list \
-    && apt-get update \
-    && apt-get -y install -t bullseye-backports openssl
+    gnupg
 
 RUN cargo install cargo-chef
 WORKDIR /app
@@ -30,15 +27,15 @@ ENV PATH="/.cargo/bin:$PATH"
 
 # Build the application
 RUN dx build --release --features web
-RUN ls -la /app/dist || true  # Debug: check if dist directory exists
 RUN cargo build --release
 
-FROM debian:bullseye-slim AS runtime
-RUN apt-get update && apt-get install -y ca-certificates libssl-dev
+FROM debian:bookworm-slim AS runtime
+RUN apt-get update && apt-get install -y ca-certificates libssl3
 
 # Copy the server binary and static files
-COPY --from=builder /app/target/dx/abi-zitate/release/web/ /usr/local/app
-
+COPY --from=builder /app/target/release/abi-zitate /usr/local/bin/server
+COPY --from=builder /app/target/dx/abi-zitate/release/web/ /usr/local/app/dist/
+COPY --from=builder /app/quotes.json /usr/local/app/
 
 # Set working directory and environment
 WORKDIR /usr/local/app
@@ -48,4 +45,4 @@ ENV HOST=0.0.0.0
 
 EXPOSE 8080
 
-CMD ["/usr/local/app/server"]
+CMD ["/usr/local/bin/server"]
