@@ -38,7 +38,7 @@ COPY --from=builder /app/target/dx/abi-zitate/release/web /usr/local/app/
 WORKDIR /usr/local/app
 ENV RUST_LOG=info
 ENV PORT=3000
-ENV HOST=0.0.0.0
+ENV IP=0.0.0.0
 ENV RUST_BACKTRACE=1
 
 EXPOSE 3000
