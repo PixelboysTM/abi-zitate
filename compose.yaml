@@ -1,0 +1,17 @@
+services:
+  zitate:
+    container_name: abi-zitate
+    build:
+      dockerfile: Dockerfile 
+      context: .
+    environment:
+      - QUOTE_FILE=/quotes.json
+    volumes:
+      - ./quotes.json:/quotes.json:rw
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+      
