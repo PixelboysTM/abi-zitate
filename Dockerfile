@@ -48,4 +48,4 @@ ENV HOST=0.0.0.0
 
 EXPOSE 8080
 
-CMD ["/usr/local/bin/server"]
+CMD ["/usr/local/app/server"]
