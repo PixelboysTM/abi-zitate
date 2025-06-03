@@ -44,4 +44,4 @@ ENV RUST_BACKTRACE=1
 EXPOSE 8080
 
 # Run the server binary that was created by dx bundle
-CMD ["(usr/local/app/server"]
+CMD ["/usr/local/app/server"]
