@@ -1,3 +1,5 @@
+use std::{collections::HashMap, hash::Hash};
+
 use chrono::{DateTime, Local};
 use dioxus::{
     document::eval,
@@ -24,7 +26,7 @@ fn App() -> Element {
             }
             document::Link { rel: "icon", href: FAVICON }
             document::Link { rel: "stylesheet", href: MAIN_CSS }
-            h1 { class: "title", "✨ Abi Quotes ✨" }
+            h1 { class: "title", "✨ Quotes ✨" }
             div { class: "container",
                 SuspenseBoundary {
                     fallback: move |_| rsx! {
@@ -43,6 +45,14 @@ fn App() -> Element {
     }
 }
 
+fn to_map<A: Hash + Eq, U>(vec: Vec<(A, U)>) -> HashMap<A, U> {
+    let mut m = HashMap::new();
+    for v in vec {
+        m.insert(v.0, v.1);
+    }
+    m
+}
+
 #[component]
 fn AddQuote() -> Element {
     rsx! {
@@ -50,10 +60,10 @@ fn AddQuote() -> Element {
             class: "createNew",
             method: "POST",
             onsubmit: move |e| async move {
-                let vs = e.values();
+                let vs: HashMap<String, FormValue> = to_map(e.values());
                 info!("{:?}", vs);
-                let name = vs.get("quote").map(|v| v.0[0].clone());
-                let author = vs.get("author").map(|v| v.0[0].clone());
+                let name: Option<String> = vs.get("quote").and_then(|v| match v {FormValue::Text(t) => Some(t.clone()), _ => None});
+                let author = vs.get("author").and_then(|v| match v {FormValue::Text(t) => Some(t.clone()), _ => None});
                 if let (Some(n), Some(a)) = (name, author) {
                     info!("Calling");
                     if let Ok(true) = add_quote(n, a).await {
@@ -75,8 +85,7 @@ fn AddQuote() -> Element {
 
 #[component]
 fn Quotes() -> Element {
-    let quotes: MappedSignal<Result<Vec<Quote>, ServerFnError>> =
-        use_resource(get_quotes).suspend()?;
+    let quotes = use_resource(get_quotes).suspend()?;
 
     info!("Rendering Quotes component");
 

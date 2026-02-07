@@ -1,4 +1,4 @@
-FROM rust:1.85-slim-bookworm AS chef
+FROM rust:1.93-slim-trixie AS chef
 # Install OpenSSL and other dependencies
 RUN apt-get update && apt-get install -y \
     curl \
@@ -32,7 +32,7 @@ FROM debian:bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates libssl3
 
 # Copy the bundled application
-COPY --from=builder /app/target/dx/abi-zitate/release/web /usr/local/app/
+COPY --from=builder /app/target/dx/zitate/release/web /usr/local/app/
 
 # Set working directory and environment
 WORKDIR /usr/local/app
